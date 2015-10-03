@@ -8,9 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-/**
- * Created by san on 10/3/15.
- */
 public class ListRepoAdapter extends CursorAdapter {
 
 	public static class ViewHolder {

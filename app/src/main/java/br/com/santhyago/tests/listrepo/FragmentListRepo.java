@@ -26,9 +26,6 @@ import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-/**
- * Created by san on 10/2/15.
- */
 public class FragmentListRepo extends Fragment {
 	private static final String API_URL = "https://api.github.com";
 	private static final String TAG = "SBG";
@@ -64,12 +61,21 @@ public class FragmentListRepo extends Fragment {
 	private int mPosition = ListView.INVALID_POSITION;
 	private static final String SELECTED_KEY = "selected_position";
 	private Context mContext;
+	private boolean inLandMode;
 
 	public FragmentListRepo() {
 	}
 
+	public void setInLandMode(boolean inLandMode) {
+		this.inLandMode = inLandMode;
+	}
+
+	public boolean isInLandMode() {
+		return inLandMode;
+	}
+
 	public interface Callback {
-		void onItemSelected(String user, String repoName);
+		void onItemSelected(long repoID);
 	}
 
 	@Override
@@ -101,7 +107,7 @@ public class FragmentListRepo extends Fragment {
 				Cursor cursor = mListRepoAdapter.getCursor();
 				if (cursor != null && cursor.moveToPosition(position)) {
 					((Callback)getActivity())
-							.onItemSelected(cursor.getString(COL_REPO_USER), cursor.getString(COL_REPO_NAME));
+							.onItemSelected(cursor.getLong(COL_REPO_ID));
 				}
 				mPosition = position;
 			}
@@ -147,7 +153,7 @@ public class FragmentListRepo extends Fragment {
 
 		GitHubService service = retrofit.create(GitHubService.class);
 
-		Call<List<Repo>> call = service.listRepos("santhyago");
+		Call<List<Repo>> call = service.listRepos("torvalds");
 		call.enqueue(new retrofit.Callback<List<Repo>>() {
 			@Override
 			public void onResponse(Response<List<Repo>> response, Retrofit retrofit) {
@@ -164,6 +170,11 @@ public class FragmentListRepo extends Fragment {
 					prefEditor = pref.edit();
 					prefEditor.putLong(getString(R.string.time_last_update), Calendar.getInstance(TimeZone.getDefault()).getTimeInMillis());
 					prefEditor.apply();
+				}
+
+				if (mPosition != ListView.INVALID_POSITION) {
+					mListView.smoothScrollToPosition(mPosition);
+					mListView.setSelection(mPosition);
 				}
 			}
 

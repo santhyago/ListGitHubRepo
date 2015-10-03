@@ -25,14 +25,14 @@ public class MainActivity extends AppCompatActivity implements FragmentListRepo.
 
         FragmentListRepo fragmentListRepo =  ((FragmentListRepo)getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_forecast));
+        fragmentListRepo.setInLandMode(mTwoPane);
     }
 
     @Override
-    public void onItemSelected(String user, String repoName) {
+    public void onItemSelected(long repoID) {
         if (mTwoPane) {
             Bundle args = new Bundle();
-            args.putString(FragmentRepoDetail.USER_KEY, user);
-            args.putString(FragmentRepoDetail.REPO_NAME_KEY, repoName);
+            args.putLong(FragmentRepoDetail.REPO_ID_KEY, repoID);
 
             FragmentRepoDetail fragment = new FragmentRepoDetail();
             fragment.setArguments(args);
@@ -42,8 +42,7 @@ public class MainActivity extends AppCompatActivity implements FragmentListRepo.
                     .commit();
         } else {
             Intent intent = new Intent(this, DetailActivity.class)
-                    .putExtra(DetailActivity.USER_KEY, user)
-                    .putExtra(DetailActivity.REPO_NAME_KEY, repoName);
+                    .putExtra(DetailActivity.REPO_ID_KEY, repoID);
             startActivity(intent);
         }
     }
