@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity implements FragmentListRepo.Callback {
-    private boolean mTwoPane;
+    public boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,9 +23,6 @@ public class MainActivity extends AppCompatActivity implements FragmentListRepo.
             mTwoPane = false;
         }
 
-        FragmentListRepo fragmentListRepo =  ((FragmentListRepo)getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_forecast));
-        fragmentListRepo.setInLandMode(mTwoPane);
     }
 
     @Override

@@ -61,17 +61,8 @@ public class FragmentListRepo extends Fragment {
 	private int mPosition = ListView.INVALID_POSITION;
 	private static final String SELECTED_KEY = "selected_position";
 	private Context mContext;
-	private boolean inLandMode;
 
 	public FragmentListRepo() {
-	}
-
-	public void setInLandMode(boolean inLandMode) {
-		this.inLandMode = inLandMode;
-	}
-
-	public boolean isInLandMode() {
-		return inLandMode;
 	}
 
 	public interface Callback {
@@ -104,12 +95,7 @@ public class FragmentListRepo extends Fragment {
 
 			@Override
 			public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-				Cursor cursor = mListRepoAdapter.getCursor();
-				if (cursor != null && cursor.moveToPosition(position)) {
-					((Callback)getActivity())
-							.onItemSelected(cursor.getLong(COL_REPO_ID));
-				}
-				mPosition = position;
+				selectItem(position);
 			}
 		});
 
@@ -125,6 +111,26 @@ public class FragmentListRepo extends Fragment {
 		}
 
 		return rootView;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (Boolean.parseBoolean(getActivity().getResources().getString(R.string.two_panel))) {
+			if (mPosition == ListView.INVALID_POSITION) {
+				selectItem(0);
+				mListView.setItemChecked(0, true);
+			}
+		}
+	}
+
+	private void selectItem(int position) {
+		Cursor cursor = mListRepoAdapter.getCursor();
+		if (cursor != null && cursor.moveToPosition(position)) {
+			((Callback) getActivity())
+					.onItemSelected(cursor.getLong(COL_REPO_ID));
+		}
+		mPosition = position;
 	}
 
 	@Override
@@ -184,5 +190,4 @@ public class FragmentListRepo extends Fragment {
 			}
 		});
 	}
-
 }

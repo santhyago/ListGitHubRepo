@@ -34,12 +34,14 @@ public class FragmentRepoDetail extends Fragment {
 		}
 
 		View rootView = inflater.inflate(R.layout.fragment_repo_detail, container, false);
+		TextView mRepoNameView = (TextView) rootView.findViewById(R.id.fragment_detail_repo_name);
 		TextView mLanguageView = (TextView) rootView.findViewById(R.id.fragment_detail_language);
 		TextView mStarsCount = (TextView) rootView.findViewById(R.id.fragment_detail_stargazers_count);
 		TextView mWatchersCount = (TextView) rootView.findViewById(R.id.fragment_detail_watchers_count);
 
 		Cursor cursor = getActivity().getContentResolver().query(GitHubContract.Repo.buildRepoUri(mRepoID), null, null, null, null, null);
 		if (cursor != null && cursor.moveToFirst()) {
+			mRepoNameView.setText(cursor.getString(cursor.getColumnIndex(GitHubContract.Repo.COL_NAME)));
 			mLanguageView.setText(cursor.getString(cursor.getColumnIndex(GitHubContract.Repo.COL_LANG)));
 			mStarsCount.setText(cursor.getString(cursor.getColumnIndex(GitHubContract.Repo.COL_STAR_COUNT)));
 			mWatchersCount.setText(cursor.getString(cursor.getColumnIndex(GitHubContract.Repo.COL_WTCH_COUNT)));
