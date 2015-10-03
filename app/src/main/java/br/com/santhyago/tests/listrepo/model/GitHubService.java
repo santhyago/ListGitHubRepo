@@ -1,4 +1,4 @@
-package br.com.santhyago.tests.listrepo;
+package br.com.santhyago.tests.listrepo.model;
 
 import java.util.List;
 

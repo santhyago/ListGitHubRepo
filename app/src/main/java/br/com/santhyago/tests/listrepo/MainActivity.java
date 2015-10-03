@@ -1,57 +1,50 @@
 package br.com.santhyago.tests.listrepo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
-import java.util.List;
-
-import br.com.santhyago.tests.listrepo.model.Repo;
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.GsonConverterFactory;
-import retrofit.Response;
-import retrofit.Retrofit;
-
-public class MainActivity extends AppCompatActivity {
-
-    private static final String API_URL = "https://api.github.com";
-    private static final String TAG = "SAN";
+public class MainActivity extends AppCompatActivity implements FragmentListRepo.Callback {
+    private boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        GitHubService service = retrofit.create(GitHubService.class);
-
-        Call<List<Repo>> call = service.listRepos("torvalds");
-        call.enqueue(new Callback<List<Repo>>() {
-            @Override
-            public void onResponse(Response<List<Repo>> response, Retrofit retrofit) {
-                List<Repo> repos = response.body();
-                for (Repo r : repos) {
-
-                    Log.d(TAG, r.getName());
-                    Log.d(TAG, r.getDescription());
-                    Log.d(TAG, " " + r.getStargazersCount());
-                    Log.d(TAG, " " + r.getWatchersCount());
-                    Log.d(TAG, r.getLanguage());
-                }
+        if (findViewById(R.id.repo_detail_container) != null) {
+            mTwoPane = true;
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.repo_detail_container, new FragmentRepoDetail())
+                        .commit();
             }
+        } else {
+            mTwoPane = false;
+        }
 
-            @Override
-            public void onFailure(Throwable t) {
-
-            }
-        });
-
+        FragmentListRepo fragmentListRepo =  ((FragmentListRepo)getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_forecast));
     }
 
+    @Override
+    public void onItemSelected(String user, String repoName) {
+        if (mTwoPane) {
+            Bundle args = new Bundle();
+            args.putString(FragmentRepoDetail.USER_KEY, user);
+            args.putString(FragmentRepoDetail.REPO_NAME_KEY, repoName);
 
+            FragmentRepoDetail fragment = new FragmentRepoDetail();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.repo_detail_container, fragment)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class)
+                    .putExtra(DetailActivity.USER_KEY, user)
+                    .putExtra(DetailActivity.REPO_NAME_KEY, repoName);
+            startActivity(intent);
+        }
+    }
 }

@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">ListRepo</string>
+    <string name="pref_key">br.com.santhyago.tests.listrepo.LIST_REPO_SBG</string>
+    <string name="time_last_update">TIME_LAST_UPDATE</string>
+
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">listrepo.tests.santhyago.com.br</string>
+    <string name="content_authority">br.com.santhyago.tests.listrepo</string>
 </resources>
