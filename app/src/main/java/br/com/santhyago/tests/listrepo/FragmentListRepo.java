@@ -6,18 +6,22 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import br.com.santhyago.tests.listrepo.adapter.ProjectAdapter;
 import br.com.santhyago.tests.listrepo.data.GitHubContract;
 import br.com.santhyago.tests.listrepo.model.GitHubService;
 import br.com.santhyago.tests.listrepo.model.Repo;
@@ -56,11 +60,15 @@ public class FragmentListRepo extends Fragment {
 	public static final int COL_REPO_LANG = 6;
 
 	private ListView mListView;
-	private ListRepoAdapter mListRepoAdapter;
+	//private ListRepoAdapter mListRepoAdapter;
+	private ProjectAdapter mProjectAdapter;
+
+	CoordinatorLayout.Behavior behavior;
 
 	private int mPosition = ListView.INVALID_POSITION;
 	private static final String SELECTED_KEY = "selected_position";
 	private Context mContext;
+	private RecyclerView recyclerView;
 
 	public FragmentListRepo() {
 	}
@@ -84,20 +92,28 @@ public class FragmentListRepo extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mListRepoAdapter = new ListRepoAdapter(getActivity(), mContentResolver.query(GitHubContract.Repo.CONTENT_URI, null, null, null, null, null), 0);
+		//mListRepoAdapter = new ListRepoAdapter(getActivity(), mContentResolver.query(GitHubContract.Repo.CONTENT_URI, null, null, null, null, null), 0);
+		mProjectAdapter = new ProjectAdapter(getActivity(), mContentResolver.query(GitHubContract.Repo.CONTENT_URI, null, null, null, null, null), onClickListener());
 
 		View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
 		// Get a reference to the ListView, and attach this adapter to it.
+		/*
 		mListView = (ListView) rootView.findViewById(R.id.listview_repos);
 		mListView.setAdapter(mListRepoAdapter);
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
 			@Override
 			public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 				selectItem(position);
 			}
 		});
+		*/
+
+		recyclerView = (RecyclerView) rootView.findViewById(R.id.listview_repos);
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+		recyclerView.setItemAnimator(new DefaultItemAnimator());
+		recyclerView.setHasFixedSize(true);
+		recyclerView.setAdapter(mProjectAdapter);
 
 		// If there's instance state, mine it for useful information.
 		// The end-goal here is that the user never knows that turning their device sideways
@@ -113,6 +129,15 @@ public class FragmentListRepo extends Fragment {
 		return rootView;
 	}
 
+	private ProjectAdapter.ProjectOnClickListener onClickListener() {
+		return new ProjectAdapter.ProjectOnClickListener() {
+			@Override
+			public void onClickProject(View view, int idx) {
+				selectItem(idx);
+			}
+		};
+	}
+
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -125,7 +150,7 @@ public class FragmentListRepo extends Fragment {
 	}
 
 	private void selectItem(int position) {
-		Cursor cursor = mListRepoAdapter.getCursor();
+		Cursor cursor = mProjectAdapter.getCursor();
 		if (cursor != null && cursor.moveToPosition(position)) {
 			((Callback) getActivity())
 					.onItemSelected(cursor.getLong(COL_REPO_ID));
@@ -169,8 +194,12 @@ public class FragmentListRepo extends Fragment {
 				int totRepo = mContentResolver.bulkInsert(GitHubContract.Repo.CONTENT_URI, values);
 				Log.d(TAG, "Total: " + totRepo + " / Repo Size: " + repos.size());
 
+				/*
 				mListRepoAdapter.swapCursor(mContentResolver.query(GitHubContract.Repo.CONTENT_URI, null, null, null, null, null));
 				mListRepoAdapter.notifyDataSetChanged();
+				*/
+				mProjectAdapter.swapCursor(mContentResolver.query(GitHubContract.Repo.CONTENT_URI, null, null, null, null, null));
+				mProjectAdapter.notifyDataSetChanged();
 
 				if (totRepo == repos.size()) {
 					prefEditor = pref.edit();

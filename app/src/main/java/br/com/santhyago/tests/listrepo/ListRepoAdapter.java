@@ -30,7 +30,7 @@ public class ListRepoAdapter extends CursorAdapter {
 
 		ViewHolder viewHolder = new ViewHolder(view);
 		view.setTag(viewHolder);
-
+		
 		return view;
 	}
 
